@@ -2,33 +2,22 @@
 
 ## Overview
 
-A single git repo at `~/Desktop/dev/kai-config` that tracks two personal config files (`~/.zshrc` and `~/.claude/CLAUDE.md`) for backup, cross-machine sync, and public showcase. Uses `chezmoi` as the sync engine so machine-specific values can be templated cleanly as the repo grows.
+A single git repo at `~/Desktop/dev/kai-config` that tracks two personal config files (`~/.zshrc` and `~/.claude/CLAUDE.md`) for backup, cross-machine sync, and public showcase. v1 MVP is a pure backup repo: plain copies of the stripped files, committed to git. No symlinks, no install scripts, no sync tool — manual copy in both directions. This keeps the surface area to "git + cp" and leaves room to upgrade to symlinks, GNU Stow, or chezmoi later without breaking anything.
 
 ## Goals
 
 - Version history for personal config files.
-- One-command restore on a fresh machine.
-- Public-share-ready: no secrets, no hardcoded paths, no machine-specific values in committed files.
+- A clean, public-shareable snapshot of the config (no secrets, no hardcoded user paths).
+- A new machine can restore the config with `cp` commands documented in the README.
 
 ## Non-goals (v1)
 
-The following are deliberately deferred. They can be added in later iterations without restructuring the repo.
-
-- `~/.claude/settings.json` — has too many third-party-plugin hooks and hardcoded paths for v1.
-- `~/.claude/agents/` and `~/.claude/skills/` (custom only).
-- VS Code extensions list, user `settings.json`, `keybindings.json`.
+- Automated sync (chezmoi, stow, symlinks, install scripts).
+- `~/.claude/settings.json` (too many third-party hooks and hardcoded paths).
+- `~/.claude/agents/`, `~/.claude/skills/` (custom files).
+- VS Code extensions, settings, keybindings.
 - `~/.claude/hooks/` scripts.
-- Bun, opencode, and RTK shell/config lines — treated as external tool dependencies; their configs are not part of this repo.
-
-## Approach
-
-Chosen: **chezmoi at a custom source location.** The repo stays where it was created (`~/Desktop/dev/kai-config`) instead of moving to chezmoi's default `~/.local/share/chezmoi`. Per-machine config in `~/.config/chezmoi/chezmoi.toml` points chezmoi at the custom location.
-
-Two approaches were considered and rejected:
-- **Pure chezmoi convention** (repo at `~/.local/share/chezmoi`) — most idiomatic, zero per-machine config, but the repo is buried out of the visible dev folder.
-- **Plain bash install script** — viable now that v1 has zero templating, but locks out future-us from chezmoi's `add`/`edit`/`diff`/`apply` ergonomics and templating once we want to track `settings.json` or encrypted secrets.
-
-Keeping chezmoi pays a tiny upfront cost (one 2-line toml per machine) and avoids a migration when scope expands.
+- Bun, opencode, and RTK shell/config lines — treated as external tool deps; reinstall the tool on a new machine and it adds its own lines back.
 
 ## Repo layout
 
@@ -36,55 +25,42 @@ Keeping chezmoi pays a tiny upfront cost (one 2-line toml per machine) and avoid
 ~/Desktop/dev/kai-config/
 ├── .git/
 ├── .gitignore
-├── .chezmoiignore
 ├── README.md
 ├── docs/
 │   └── superpowers/
-│       └── specs/
-│           └── 2026-05-11-kai-config-design.md   (this file)
-├── dot_zshrc                                     → ~/.zshrc
-└── dot_claude/
-    └── CLAUDE.md                                 → ~/.claude/CLAUDE.md
+│       ├── specs/
+│       │   └── 2026-05-11-kai-config-design.md   (this file)
+│       └── plans/
+│           └── 2026-05-11-kai-config-setup.md
+├── zshrc                                         → manual copy of stripped ~/.zshrc
+└── claude/
+    └── CLAUDE.md                                 → manual copy of cleaned ~/.claude/CLAUDE.md
 ```
 
-chezmoi naming in play:
-- `dot_` prefix → destination becomes a dotfile (`dot_zshrc` → `.zshrc`).
-- No `.tmpl` suffix in v1 — no templating needed once external-tool lines are stripped.
-- No `private_` prefix — neither tracked file is sensitive, and `~/.claude/` already exists with other content chezmoi doesn't manage.
+Tracked filenames have no dot prefix (e.g. `zshrc` not `.zshrc`) — keeps them visible in `ls`, prevents shells/tools from accidentally sourcing them from the repo, and makes the manual cp commands explicit about the destination.
 
 ## File details
 
-### `dot_zshrc` → `~/.zshrc`
+### `zshrc` (→ `~/.zshrc`)
 
 Source-of-truth is the current `~/.zshrc` with these blocks removed before committing:
 
-- The `opencode` PATH export block (single `export PATH=/Users/<user>/.opencode/bin:$PATH` line).
+- The `opencode` PATH export block (one `export PATH=/Users/<user>/.opencode/bin:$PATH` line plus its `# opencode` comment).
 - The `# bun completions` block (the `[ -s "/Users/<user>/.bun/_bun" ] && source ...` line).
 - The `# bun` block (the `BUN_INSTALL` and `PATH` exports).
 
-Rationale: each references a tool installed outside this repo's scope. Their lines either break (hardcoded user paths) or are inert (env vars pointing at non-existent dirs) if the tool isn't installed on a target machine. Users who want bun/opencode reinstall the tool, which re-adds its own lines.
+Rationale: each references a tool installed outside this repo's scope. The opencode and bun-completions lines reference hardcoded user paths that break on other machines. The remaining bun env block uses `$HOME` and is portable, but it's removed too because the user wants bun treated uniformly as an external dep — reinstall bun on a new machine and its installer re-adds all three blocks.
 
-After stripping, the tracked `dot_zshrc` contains no hardcoded user paths and no machine-specific values, so no `.tmpl` suffix is needed.
+After stripping, the tracked `zshrc` contains no hardcoded user paths and no machine-specific values.
 
-### `dot_claude/CLAUDE.md` → `~/.claude/CLAUDE.md`
+### `claude/CLAUDE.md` (→ `~/.claude/CLAUDE.md`)
 
-Source-of-truth is the current `CLAUDE.md` with the trailing `@RTK.md` line removed. RTK is an external tool installed separately; its reference doc isn't part of this repo. The `@` include would fail at load time on any machine that hasn't separately installed RTK and placed its `RTK.md` next to `CLAUDE.md`.
+Source-of-truth is the current `CLAUDE.md` with the trailing `@RTK.md` line removed. RTK is an external tool installed separately; its reference doc isn't part of this repo, and the `@` include would fail at load time on any machine that hasn't separately installed RTK.
 
 ### `.gitignore`
 
 ```
 .DS_Store
-.chezmoistate
-```
-
-### `.chezmoiignore`
-
-Tells chezmoi to skip files that exist in the repo but shouldn't be applied to `$HOME`.
-
-```
-README.md
-.gitignore
-docs/**
 ```
 
 ### `README.md`
@@ -92,63 +68,42 @@ docs/**
 Documents:
 - What the repo is and who it's for (one paragraph).
 - External tool prerequisites with install links (RTK, bun, opencode).
-- Fresh-machine bootstrap (numbered steps; see Workflows below).
-- Day-to-day commands (`chezmoi add`, `edit`, `diff`, `apply`, `re-add`).
-
-## Per-machine bootstrap config
-
-Written by hand on each machine, not tracked in the repo:
-
-```toml
-# ~/.config/chezmoi/chezmoi.toml
-sourceDir = "/Users/<username>/Desktop/dev/kai-config"
-```
+- Fresh-machine restore: explicit `cp` commands for each tracked file.
+- Day-to-day source-machine sync: explicit `cp` commands for each tracked file, with a reminder to re-strip the bun/opencode/@RTK.md lines.
 
 ## Workflows
 
-### Edit a tracked file (existing machine)
+### Source-machine sync (live → repo)
 
-Option A — edit live, pull into repo:
-1. Edit `~/.zshrc` directly in your editor.
-2. `chezmoi re-add ~/.zshrc` (copies live → repo).
-3. `cd $(chezmoi source-path)` → `git commit -am "..."` → `git push`.
+After editing `~/.zshrc` or `~/.claude/CLAUDE.md` directly:
 
-Option B — edit via chezmoi:
-1. `chezmoi edit ~/.zshrc` (opens source file in `$EDITOR`).
-2. `chezmoi apply` (pushes change into live `~/.zshrc`).
-3. Commit + push from the repo.
+1. `cp ~/.zshrc ~/Desktop/dev/kai-config/zshrc`
+2. Open `zshrc` in editor and re-strip the bun + opencode blocks (or use a sed one-liner documented in README).
+3. `cp ~/.claude/CLAUDE.md ~/Desktop/dev/kai-config/claude/CLAUDE.md`
+4. Open `claude/CLAUDE.md` in editor and remove the trailing `@RTK.md` line.
+5. `git diff` to verify only intended changes.
+6. `git commit -am "..."` and `git push`.
 
-### Track a new file
+### Fresh-machine restore (repo → live)
 
-1. `chezmoi add <path>` — chezmoi copies the file into the repo with correct naming (`dot_`, `private_`, `.tmpl` as appropriate).
-2. Commit + push.
-
-### Preview pending changes
-
-`chezmoi diff` shows the diff between repo (source) and live (`$HOME`).
-
-### Fresh-machine bootstrap
-
-1. Install chezmoi: `brew install chezmoi`.
-2. Install any external tools you actually use: bun, opencode, RTK (links in README).
-3. Clone the repo: `git clone <url> ~/Desktop/dev/kai-config`.
-4. Write `~/.config/chezmoi/chezmoi.toml` with `sourceDir = "<absolute path to clone>"`.
-5. `chezmoi apply`.
-6. `source ~/.zshrc`.
-7. Restart Claude Code so it reloads `CLAUDE.md`.
+1. `git clone <repo> ~/Desktop/dev/kai-config`
+2. `cp ~/Desktop/dev/kai-config/zshrc ~/.zshrc`
+3. `mkdir -p ~/.claude && cp ~/Desktop/dev/kai-config/claude/CLAUDE.md ~/.claude/CLAUDE.md`
+4. Install external tool deps you want: RTK, bun, opencode (the installers re-add their shell lines).
+5. `source ~/.zshrc`.
+6. Restart Claude Code to load CLAUDE.md.
 
 ## Validation
 
-- After `chezmoi apply`, `chezmoi diff` produces no output.
-- `~/.zshrc` and `~/.claude/CLAUDE.md` exist and match their repo counterparts byte-for-byte (no templating in v1).
-- New shell loads without errors referencing missing tools (validates that the strip was complete).
-- Cross-machine validation is deferred until the second machine is set up.
+- After committing, `git diff HEAD~1 -- zshrc claude/CLAUDE.md` shows only the intentional strips.
+- `grep -E "bun|opencode|@RTK" zshrc claude/CLAUDE.md` returns no matches.
+- No hardcoded `/Users/<your-username>` paths in tracked files: `grep -r /Users/ . --exclude-dir=.git --exclude-dir=docs` returns nothing.
 
 ## Future (not v1)
 
-- Track `~/.claude/settings.json` with chezmoi templates: hardcoded `/Users/<user>/...` paths become `{{ .chezmoi.homeDir }}/...`. Move ping-island and superset-hook commands accordingly.
+- Add symlink-based sync (`install.sh` or GNU Stow) when the manual cp dance gets annoying.
+- Re-evaluate chezmoi once secrets/templating become real needs.
+- Track `~/.claude/settings.json` with whatever sync mechanism we adopt (will need path templating).
 - Track custom Claude artefacts: `~/.claude/agents/coden-ramsay.md`, `~/.claude/skills/ast-grep/`.
-- Track VS Code: `code --list-extensions` output, `~/Library/Application Support/Code/User/settings.json`, `keybindings.json`.
+- Track VS Code: extensions list, user settings, keybindings.
 - Track custom `~/.claude/hooks/` scripts (e.g. `rtk-rewrite.sh`).
-- Migrate repo to chezmoi default `~/.local/share/chezmoi` if the per-machine toml becomes annoying.
-- Encrypted secrets via age/gpg once anything sensitive needs tracking.
