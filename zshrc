@@ -1,6 +1,6 @@
 # zmodload zsh/zprof
 
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -80,9 +80,9 @@ alias ls='ls --color'
 alias vim='nvim'
 alias c='clear'
 
-# Shell integrations
-eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
+# Shell integrations (guarded so a fresh machine without these tools doesn't error)
+command -v fzf >/dev/null && eval "$(fzf --zsh)"
+command -v zoxide >/dev/null && eval "$(zoxide init --cmd cd zsh)"
 
 # zprof
 
