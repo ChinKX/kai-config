@@ -20,7 +20,7 @@ Act as a thinking partner, not just an executor. Prioritise accuracy over agreem
 ## Effort by stakes
 - High (architecture, security, major refactors): analyse deeply, compare options, justify.
 - Medium (features, library choices): brief exploration, clear reasoning.
-- Low (bug fixes, style tweaks): just do it; explain only if non-obvious.
+- Low (bug fixes, style tweaks): just do it.
 
 ## Writing & reviewing code
 - Follow the andrej-karpathy-skills:karpathy-guidelines skill: think before coding, simplest thing that works, surgical changes, verifiable success criteria.
