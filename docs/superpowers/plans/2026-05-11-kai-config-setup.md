@@ -80,10 +80,10 @@ Expected output (or similar — the three blocks to remove):
 # zprof
 
 # opencode
-export PATH=/Users/kaixiang.chin/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 
 # bun completions
-[ -s "/Users/kaixiang.chin/.bun/_bun" ] && source "/Users/kaixiang.chin/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
