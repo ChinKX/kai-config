@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Pre-commit leak gate for kai-config (a PUBLIC repo).
+# Blocks commits whose staged files contain secrets, tokens, or hardcoded home paths.
+# Enable on a machine with:  git config core.hooksPath .githooks
+# Override a false positive with:  git commit --no-verify
+set -euo pipefail
+
+pattern='BEGIN [A-Z ]*PRIVATE KEY|xox[baprs]-|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/'
+hits=0
+
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  case "$f" in .githooks/*) continue ;; esac   # never scan the gate itself
+  [ -f "$f" ] || continue
+  if matches=$(grep -nIEi "$pattern" "$f"); then
+    echo "🚫 leak-gate: internal/confidential marker in staged file: $f"
+    printf '%s\n' "$matches" | sed 's/^/     /'
+    hits=1
+  fi
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
+if [ "$hits" -ne 0 ]; then
+  echo ""
+  echo "Commit blocked. Move the content to an untracked/local file, or bypass with: git commit --no-verify"
+  exit 1
+fi
