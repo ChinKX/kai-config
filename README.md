@@ -25,6 +25,16 @@ Restart Claude Code to load the new `CLAUDE.md`.
 touch ~/.claude/local.md   # then add machine-specific notes as needed
 ```
 
+## Claude settings
+
+`claude/settings.json` holds the portable, public-safe slice of my Claude Code config: generic permission rules, the public plugin marketplaces, and personal preference scalars (theme, effort level, etc.). Anything machine-specific or internal is deliberately excluded.
+
+Those excluded bits belong in `~/.claude/settings.local.json` — an untracked (gitignored) override that Claude Code merges *over* `settings.json`. Keep per-machine and internal config there: the RTK hook, the status-line command, private plugin marketplaces, and project-specific permission rules.
+
+> **Note:** `permissions.allow` rules *union* across the two files — a local rule can add to the allow-list but cannot remove one. So anything sensitive must be kept **out** of the tracked `settings.json` entirely, not merely "overridden" in the local file.
+
+This file is not yet wired onto a machine; symlinking it into `~/.claude/` will be handled by the planned install script.
+
 ## Plugins
 
 `claude/CLAUDE.md` defers code-style guidance to the `karpathy-guidelines` skill. Install it once per machine, from inside Claude Code:
