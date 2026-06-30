@@ -6,16 +6,12 @@ Personal config snapshot for my macOS dev setup. Tracks `~/.zshrc` and my Claude
 
 ```bash
 git clone https://github.com/ChinKX/kai-config.git ~/Desktop/dev/kai-config
-cp ~/Desktop/dev/kai-config/zshrc ~/.zshrc
-
-mkdir -p ~/.claude
-# Relative symlink (not copy) so Claude's edits and git pulls stay in lockstep — no
-# drift — and the link stores no hardcoded home path (resolves relative to ~/.claude/).
-# Assumes the repo lives at ~/Desktop/dev/kai-config, the clone path above.
-ln -sf ../Desktop/dev/kai-config/claude/CLAUDE.md ~/.claude/CLAUDE.md
-
+cd ~/Desktop/dev/kai-config
+./install.sh
 source ~/.zshrc
 ```
+
+`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds the `~/.claude/local.md` stub and enables the pre-commit leak gate. Re-run it any time; an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
 
 Restart Claude Code to load the new `CLAUDE.md`.
 
