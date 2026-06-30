@@ -1,1 +1,7 @@
 .DS_Store
+
+# Machine-local / internal overrides — kept out of this (public) repo so that
+# per-machine and confidential config can never be committed. See README.
+local.md
+claude/local.md
+**/settings.local.json
