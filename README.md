@@ -21,11 +21,13 @@ Restart Claude Code to load the new `CLAUDE.md`.
 
 ## Machine-local config
 
-`claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. Create a stub on each machine so the import resolves:
+`claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. Seed it on each machine from the tracked template:
 
 ```bash
-touch ~/.claude/local.md   # then add machine-specific notes as needed
+cp ~/Desktop/dev/kai-config/claude/local.md.example ~/.claude/local.md   # then adjust
 ```
+
+RTK (Rust Token Killer) and its `PreToolUse` hook (`~/.claude/hooks/rtk-rewrite.sh`) are installed per-machine by the RTK tool — not tracked here — and the command auto-rewrite (`git status` → `rtk git status`) only works after RTK is set up.
 
 ## Claude settings
 
