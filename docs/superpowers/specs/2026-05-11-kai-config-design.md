@@ -1,5 +1,7 @@
 # kai-config — personal setup tracking repo
 
+> **Status: SUPERSEDED (2026-06)** — kept for history. This documents the original v1 (pure backup repo: manual `cp` in both directions, **no symlinks**, `settings.json` out of scope). The shipped design has since moved on — `CLAUDE.md` is a relative symlink, `settings.json` is a copied baseline, setup runs via `install.sh`, and a pre-commit leak gate guards the repo. See [README.md](../../../README.md) for the current approach.
+
 ## Overview
 
 A single git repo at `~/Desktop/dev/kai-config` that tracks two personal config files (`~/.zshrc` and `~/.claude/CLAUDE.md`) for backup, cross-machine sync, and public showcase. v1 MVP is a pure backup repo: plain copies of the stripped files, committed to git. No symlinks, no install scripts, no sync tool — manual copy in both directions. This keeps the surface area to "git + cp" and leaves room to upgrade to symlinks, GNU Stow, or chezmoi later without breaking anything.
