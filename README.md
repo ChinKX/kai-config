@@ -9,8 +9,10 @@ git clone https://github.com/ChinKX/kai-config.git ~/Desktop/dev/kai-config
 cp ~/Desktop/dev/kai-config/zshrc ~/.zshrc
 
 mkdir -p ~/.claude
-# Symlink (not copy) so Claude's own edits and git pulls stay in lockstep — no drift.
-ln -sf ~/Desktop/dev/kai-config/claude/CLAUDE.md ~/.claude/CLAUDE.md
+# Relative symlink (not copy) so Claude's edits and git pulls stay in lockstep — no
+# drift — and the link stores no hardcoded home path (resolves relative to ~/.claude/).
+# Assumes the repo lives at ~/Desktop/dev/kai-config, the clone path above.
+ln -sf ../Desktop/dev/kai-config/claude/CLAUDE.md ~/.claude/CLAUDE.md
 
 source ~/.zshrc
 ```
