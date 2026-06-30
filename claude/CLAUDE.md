@@ -23,7 +23,7 @@ Act as a thinking partner, not just an executor. Prioritise accuracy over agreem
 - Low (bug fixes, style tweaks): just do it; explain only if non-obvious.
 
 ## Writing & reviewing code
-- Follow the andrej-karpathy-skills:karpathy-guidelines skill: think before coding, simplest thing that works, surgical changes, verifiable success criteria.
+- Think before coding; do the simplest thing that works; make surgical changes; define verifiable success criteria. (If the andrej-karpathy-skills:karpathy-guidelines skill is installed, follow it for the fuller version.)
 
 ## Visual outputs
 - For plans, explanations, mockups, or slide decks, default to a self-contained HTML artifact when the Artifact tool is available (load the artifact-design skill first). Fall back to markdown when it isn't. Never put secrets, credentials, or confidential/customer data in an artifact.
