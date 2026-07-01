@@ -45,3 +45,11 @@ A `.githooks/pre-commit` leak gate blocks commits whose staged files contain sec
 ```
 
 If the skill isn't installed, the same principles are inlined in `CLAUDE.md`, so nothing breaks.
+
+## External tools
+
+Some of my `~/.claude/` and shell setup is installed by separate tools and is **not tracked here**. On a fresh machine, install the ones you use — their own installers lay down (or re-add) the relevant files:
+
+- **[Argent](https://github.com/software-mansion/argent)** — `npx @swmansion/argent init` installs the `argent-*` skills, the `~/.claude/rules/argent.md` always-on rule, and the `argent-environment-inspector` agent (iOS/Android agent tooling). Deliberately not tracked here — re-run `init` per machine, and to update the rule.
+- **RTK (Rust Token Killer)** — installed per-machine; provides `~/.claude/hooks/rtk-rewrite.sh` and its `PreToolUse` hook (see [Machine-local config](#machine-local-config)).
+- **bun / opencode** — their installers re-add their own `~/.zshrc` lines.
