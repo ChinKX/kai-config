@@ -1,5 +1,7 @@
 # kai-config v1 MVP Setup — Implementation Plan
 
+> **Status: SUPERSEDED (2026-06)** — kept for history. This is the original v1 implementation plan (pure backup repo: manual `cp` in both directions, **no symlinks**, `settings.json` out of scope). The shipped setup has since moved on — `CLAUDE.md` is a relative symlink, `settings.json` is a copied baseline, setup runs via `install.sh`, and a pre-commit leak gate guards the repo. See [README.md](../../../README.md) for the current approach.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Populate the `kai-config` repo at `~/Desktop/dev/kai-config` with stripped, public-shareable copies of `~/.zshrc` and `~/.claude/CLAUDE.md`, plus a `.gitignore` and `README.md`. Commit each logical unit. Verify the repo contains no hardcoded user paths and no external-tool references.
