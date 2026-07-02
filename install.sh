@@ -3,6 +3,8 @@
 #   cd <repo> && ./install.sh
 # Read-only drift report (exits non-zero on drift, cron/CI-friendly):
 #   ./install.sh check
+# Detach this machine from the repo (materialise symlinks, restore backups):
+#   ./install.sh uninstall
 #
 # Principle:
 #   SYMLINK the files you hand-edit  -> they stay in lockstep with the repo (no drift).
@@ -105,6 +107,43 @@ PY
   exit "$rc"
 }
 [ "${1:-}" = "check" ] && check
+
+uninstall() {  # detach this machine from the repo, restoring what install.sh replaced
+  # CLAUDE.md: turn the repo symlink back into a standalone file with the same content.
+  local target="$HOME/.claude/CLAUDE.md" real
+  if [ -L "$target" ]; then
+    real="$(readlink -f "$target" 2>/dev/null || true)"
+    case "$real" in
+      "$REPO"/*) rm "$target"; cp "$real" "$target"; echo "restore  ~/.claude/CLAUDE.md materialised (was repo symlink)";;
+      *) echo "skip     ~/.claude/CLAUDE.md is a symlink, but not into this repo";;
+    esac
+  else
+    echo "skip     ~/.claude/CLAUDE.md is not a symlink"
+  fi
+
+  # zshrc: put back the newest pre-install backup; keep the managed copy aside.
+  local bak
+  bak="$(ls -t "$HOME"/.zshrc.bak.* 2>/dev/null | head -n1 || true)"
+  if [ -n "$bak" ]; then
+    [ -e "$HOME/.zshrc" ] && { mv "$HOME/.zshrc" "$HOME/.zshrc.uninstalled.$(date +%s)"; echo "keep     managed copy -> ~/.zshrc.uninstalled.*"; }
+    mv "$bak" "$HOME/.zshrc"; echo "restore  ~/.zshrc <- $(basename "$bak")"
+  else
+    echo "keep     ~/.zshrc (no .bak to restore; it's a plain copy, safe to keep or delete)"
+  fi
+
+  # Leak gate: this clone only.
+  if git -C "$REPO" config --unset core.hooksPath 2>/dev/null; then
+    echo "config   core.hooksPath unset (leak gate disarmed for this clone)"
+  else
+    echo "skip     core.hooksPath was not set"
+  fi
+
+  echo ""
+  echo "Left in place (plain files, never repo-linked): ~/.claude/settings.json,"
+  echo "~/.claude/local.md, ~/.claude/settings.local.json, ~/.zshrc.local, *.bak.* backups."
+  exit 0
+}
+[ "${1:-}" = "uninstall" ] && uninstall
 
 # 1) Symlinked — hand-edited, kept in lockstep with the repo.
 symlink claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"

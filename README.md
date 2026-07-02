@@ -23,6 +23,14 @@ Restart Claude Code to load the new `CLAUDE.md`.
 
 Read-only report of whether this machine still matches the repo: the `CLAUDE.md` symlink, `~/.zshrc` (distinguishing installer-appended lines from real divergence), the baseline keys in `~/.claude/settings.json`, the leak-gate `core.hooksPath`, and `~/.claude/local.md`. Exits non-zero on drift, so it can run in cron or CI. Drift in `settings.json` is often expected (Claude Code writes runtime state there) — fold deliberate preference changes back into the repo, ignore the rest.
 
+## Uninstalling
+
+```bash
+./install.sh uninstall
+```
+
+Detaches the machine from the repo: materialises the `CLAUDE.md` symlink into a standalone file with the same content, restores the newest `~/.zshrc.bak.*` (keeping the managed copy as `~/.zshrc.uninstalled.*`), and unsets the leak-gate `core.hooksPath` for the clone. Plain copies (`settings.json`, `local.md`, `settings.local.json`, `~/.zshrc.local`) are left in place — they were never linked to the repo. This makes the whole setup safe to trial on a machine that already has dotfiles.
+
 ## Machine-local config
 
 `claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. `install.sh` seeds it from the tracked template (`claude/local.md.example`) when absent; adjust it per machine afterwards.
