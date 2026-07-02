@@ -11,17 +11,13 @@ cd ~/Desktop/dev/kai-config
 source ~/.zshrc
 ```
 
-`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds the `~/.claude/local.md` stub and enables the pre-commit leak gate. Re-run it any time; an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
+`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds `~/.claude/local.md` from `claude/local.md.example` and enables the pre-commit leak gate. Re-run it any time; an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
 
 Restart Claude Code to load the new `CLAUDE.md`.
 
 ## Machine-local config
 
-`claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. Seed it on each machine from the tracked template:
-
-```bash
-cp ~/Desktop/dev/kai-config/claude/local.md.example ~/.claude/local.md   # then adjust
-```
+`claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. `install.sh` seeds it from the tracked template (`claude/local.md.example`) when absent; adjust it per machine afterwards.
 
 RTK (Rust Token Killer) and its `PreToolUse` hook (`~/.claude/hooks/rtk-rewrite.sh`) are installed per-machine by the RTK tool — not tracked here — and the command auto-rewrite (`git status` → `rtk git status`) only works after RTK is set up.
 
