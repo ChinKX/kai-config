@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Idempotent setup for kai-config. Run from anywhere after cloning:
 #   cd <repo> && ./install.sh
+# Read-only drift report (exits non-zero on drift, cron/CI-friendly):
+#   ./install.sh check
 #
 # Principle:
 #   SYMLINK the files you hand-edit  -> they stay in lockstep with the repo (no drift).
@@ -32,6 +34,77 @@ copy_baseline() {  # $1 = repo-relative source, $2 = destination; copy only if m
   if [ -e "$dest" ]; then echo "skip     $dest exists (app-managed; baseline at $1)"; return; fi
   cp "$src" "$dest"; echo "copy     $dest (baseline)"
 }
+
+check() {  # read-only: report repo vs machine drift, exit 1 if any
+  local rc=0
+
+  # CLAUDE.md symlink
+  local dest="$HOME/.claude/CLAUDE.md" expected
+  expected="$(relpath "$REPO/claude/CLAUDE.md" "$HOME/.claude")"
+  if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$expected" ]; then
+    echo "ok       ~/.claude/CLAUDE.md -> $expected"
+  else
+    echo "DRIFT    ~/.claude/CLAUDE.md is not the expected repo symlink"; rc=1
+  fi
+
+  # zshrc: separate "extra lines appended" from real divergence
+  if [ ! -e "$HOME/.zshrc" ]; then
+    echo "DRIFT    ~/.zshrc missing"; rc=1
+  elif cmp -s "$REPO/zshrc" "$HOME/.zshrc"; then
+    echo "ok       ~/.zshrc matches repo zshrc"
+  else
+    local extra missing
+    extra="$(grep -Fxvf "$REPO/zshrc" "$HOME/.zshrc" | grep -c . || true)"
+    missing="$(grep -Fxvf "$HOME/.zshrc" "$REPO/zshrc" | grep -c . || true)"
+    if [ "$missing" -eq 0 ]; then
+      echo "DRIFT    ~/.zshrc has $extra extra line(s) (installer appends?); repo lines all present"
+    else
+      echo "DRIFT    ~/.zshrc diverges ($missing repo line(s) absent, $extra extra)"
+    fi
+    rc=1
+  fi
+
+  # settings.json: every key in the tracked baseline should survive in the live file
+  if [ ! -e "$HOME/.claude/settings.json" ]; then
+    echo "DRIFT    ~/.claude/settings.json missing"; rc=1
+  elif command -v python3 >/dev/null; then
+    local sdrift
+    sdrift="$(python3 - "$REPO/claude/settings.json" "$HOME/.claude/settings.json" <<'PY'
+import json, sys
+base = json.load(open(sys.argv[1])); live = json.load(open(sys.argv[2]))
+for k, v in base.items():
+    if k not in live: print(f"missing: {k}")
+    elif live[k] != v: print(f"differs: {k}")
+PY
+)"
+    if [ -z "$sdrift" ]; then
+      echo "ok       ~/.claude/settings.json carries all baseline keys"
+    else
+      echo "DRIFT    ~/.claude/settings.json vs baseline (app-managed drift is expected; fold deliberate changes back into the repo):"
+      printf '%s\n' "$sdrift" | sed 's/^/           /'; rc=1
+    fi
+  else
+    echo "skip     settings.json comparison (python3 unavailable)"
+  fi
+
+  # leak gate + local.md
+  if [ "$(git -C "$REPO" config core.hooksPath 2>/dev/null || true)" = ".githooks" ]; then
+    echo "ok       core.hooksPath=.githooks (leak gate armed)"
+  else
+    echo "DRIFT    leak gate disabled: core.hooksPath unset"; rc=1
+  fi
+  if [ -e "$HOME/.claude/local.md" ]; then
+    echo "ok       ~/.claude/local.md present"
+  else
+    echo "DRIFT    ~/.claude/local.md missing (CLAUDE.md @import dangles)"; rc=1
+  fi
+
+  echo ""
+  if [ "$rc" -eq 0 ]; then echo "No drift. This machine matches the repo."
+  else echo "Drift detected. Run ./install.sh to sync, or fold deliberate changes back into the repo."; fi
+  exit "$rc"
+}
+[ "${1:-}" = "check" ] && check
 
 # 1) Symlinked — hand-edited, kept in lockstep with the repo.
 symlink claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
