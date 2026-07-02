@@ -125,6 +125,17 @@ copy_baseline claude/settings.json "$HOME/.claude/settings.json"
 # 4) Enable the pre-commit leak gate for this clone.
 git -C "$REPO" config core.hooksPath .githooks && echo "config   core.hooksPath=.githooks"
 
+# 5) Per-machine override skeleton (untracked; Claude Code merges it over settings.json).
+[ -e "$HOME/.claude/settings.local.json" ] || { cp "$REPO/claude/settings.local.json.example" "$HOME/.claude/settings.local.json"; echo "seed     ~/.claude/settings.local.json (from claude/settings.local.json.example)"; }
+
+# 6) Non-fatal checklist for the externally-installed pieces this config expects
+#    (see README "External tools"). Informational only — never fails the install.
+echo ""
+echo "External tools (installed separately; ignore any you don't use):"
+if command -v rtk >/dev/null; then echo "  ok     rtk CLI"; else echo "  todo   rtk CLI — install RTK, then add its hook to settings.local.json (README: Machine-local config)"; fi
+if [ -f "$HOME/.claude/hooks/rtk-rewrite.sh" ]; then echo "  ok     RTK PreToolUse hook"; else echo "  todo   ~/.claude/hooks/rtk-rewrite.sh — laid down by RTK's own setup"; fi
+if [ -f "$HOME/.claude/rules/argent.md" ]; then echo "  ok     Argent rule"; else echo "  todo   ~/.claude/rules/argent.md — run: npx @swmansion/argent init"; fi
+
 echo ""
 echo "Done. Restart Claude Code to load CLAUDE.md, then run: source ~/.zshrc"
-echo "Per-machine / internal settings go in ~/.claude/settings.local.json (untracked)."
+echo "Per-machine / internal settings go in ~/.claude/settings.local.json (untracked, seeded above)."
