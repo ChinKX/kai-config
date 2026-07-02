@@ -36,8 +36,20 @@ copy_baseline() {  # $1 = repo-relative source, $2 = destination; copy only if m
 symlink claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
 
 # 2) Copied — app/installer write-targets, kept out of the repo.
-#    zshrc: install your config, backing up any existing one first.
+#    zshrc: install your config, backing up any existing one first. Lines that
+#    tool installers appended (bun, opencode, ...) are migrated to the untracked
+#    ~/.zshrc.local, which the managed zshrc sources — so re-installs never
+#    deactivate them.
 if [ -e "$HOME/.zshrc" ] && ! cmp -s "$REPO/zshrc" "$HOME/.zshrc"; then
+  extra="$(grep -Fxvf "$REPO/zshrc" "$HOME/.zshrc" || true)"
+  if [ -n "$extra" ]; then
+    if [ -e "$HOME/.zshrc.local" ] && grep -Fxq "$(printf '%s' "$extra" | head -n1)" "$HOME/.zshrc.local"; then
+      echo "skip     ~/.zshrc.local already has the extra lines"
+    else
+      { echo ""; echo "# migrated from ~/.zshrc by install.sh on $(date +%F)"; printf '%s\n' "$extra"; } >> "$HOME/.zshrc.local"
+      echo "migrate  ~/.zshrc extra lines -> ~/.zshrc.local"
+    fi
+  fi
   mv "$HOME/.zshrc" "$HOME/.zshrc.bak.$(date +%s)"; echo "backup   ~/.zshrc -> .bak"
 fi
 cp "$REPO/zshrc" "$HOME/.zshrc"; echo "copy     ~/.zshrc"
