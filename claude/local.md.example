@@ -1,0 +1,40 @@
+<!--
+  Template for ~/.claude/local.md — the machine-local config imported by
+  ~/.claude/CLAUDE.md (its trailing `@~/.claude/local.md` line).
+
+  Copy this to ~/.claude/local.md on each machine and adjust. The live file is
+  gitignored / never tracked; this template is just a starting point so the
+  import resolves to something useful instead of an empty stub.
+-->
+
+# Machine-local config
+
+## RTK - Rust Token Killer
+
+**Usage**: Token-optimized CLI proxy (60-90% savings on dev operations)
+
+### Meta Commands (always use rtk directly)
+
+```bash
+rtk gain              # Show token savings analytics
+rtk gain --history    # Show command usage history with savings
+rtk discover          # Analyze Claude Code history for missed opportunities
+rtk proxy <cmd>       # Execute raw command without filtering (for debugging)
+```
+
+### Installation Verification
+
+```bash
+rtk --version         # Should show: rtk X.Y.Z
+rtk gain              # Should work (not "command not found")
+which rtk             # Verify correct binary
+```
+
+⚠️ **Name collision**: If `rtk gain` fails, you may have reachingforthejack/rtk (Rust Type Kit) installed instead.
+
+### Hook-Based Usage
+
+RTK and its `PreToolUse` hook (`~/.claude/hooks/rtk-rewrite.sh`) are installed
+per-machine by the RTK tool — they are **not** tracked in this repo. The command
+auto-rewrite (`git status` → `rtk git status`) only works once RTK is set up on
+the machine.
