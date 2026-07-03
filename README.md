@@ -35,7 +35,7 @@ RTK (Rust Token Killer) and its `PreToolUse` hook (`~/.claude/hooks/rtk-rewrite.
 
 Unlike `CLAUDE.md`, this file is **copied onto a machine, not symlinked.** Claude Code treats `~/.claude/settings.json` as a live, app-managed file — it writes runtime state there (notification toggles, `tui`, approved permissions). Symlinking it into the repo would let those writes dirty, and potentially leak into, this public repo. So the live file is a plain local copy; the tracked file is only the starting baseline.
 
-Those excluded bits live in `~/.claude/settings.local.json` — an untracked (gitignored) override that Claude Code merges *over* `settings.json`. It holds the RTK hook, the status-line command, private plugin marketplaces, the permission-skip flags, and the whole `permissions.allow` list.
+Those excluded bits live in `~/.claude/settings.local.json` — an untracked (gitignored) override that Claude Code merges *over* `settings.json`. It holds the RTK hook, the status-line command, private plugin marketplaces, the permission-skip flags, and the whole `permissions.allow` list. `install.sh` seeds it from the empty skeleton `claude/settings.local.json.example` when absent.
 
 The allow-list is kept local on purpose: it's working-state that accretes as you approve commands, and `permissions.allow` rules *union* across files — so a tracked rule could never be removed by a local override.
 
