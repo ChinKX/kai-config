@@ -15,6 +15,14 @@ source ~/.zshrc
 
 Restart Claude Code to load the new `CLAUDE.md`.
 
+## Checking for drift
+
+```bash
+./install.sh check
+```
+
+Read-only report of whether this machine still matches the repo: the `CLAUDE.md` symlink, `~/.zshrc` (distinguishing installer-appended lines from real divergence), the baseline keys in `~/.claude/settings.json`, the leak-gate `core.hooksPath`, and `~/.claude/local.md`. Exits non-zero on drift, so it can run in cron or CI. Drift in `settings.json` is often expected (Claude Code writes runtime state there) — fold deliberate preference changes back into the repo, ignore the rest.
+
 ## Machine-local config
 
 `claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. `install.sh` seeds it from the tracked template (`claude/local.md.example`) when absent; adjust it per machine afterwards.
