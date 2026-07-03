@@ -4,7 +4,7 @@
     "SHELL": "/bin/zsh"
   },
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "default"
   },
   "enabledPlugins": {
     "andrej-karpathy-skills@karpathy-skills": true,
@@ -22,8 +22,8 @@
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
-        "source": "git",
-        "url": "git@github.com:anthropics/claude-plugins-official.git"
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
       }
     },
     "karpathy-skills": {

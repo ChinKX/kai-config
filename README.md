@@ -1,6 +1,6 @@
 # kai-config
 
-Personal config snapshot for my macOS dev setup. Tracks `~/.zshrc` and my Claude Code global instructions (`~/.claude/CLAUDE.md`) for backup and cross-machine sync.
+Personal config snapshot for my macOS dev setup. Tracks `~/.zshrc`, my Claude Code global instructions (`~/.claude/CLAUDE.md`), a public-safe `settings.json` baseline, and a machine-local config template — for backup and cross-machine sync.
 
 ## Setup
 
@@ -31,7 +31,9 @@ Those excluded bits live in `~/.claude/settings.local.json` — an untracked (gi
 
 The allow-list is kept local on purpose: it's working-state that accretes as you approve commands, and `permissions.allow` rules *union* across files — so a tracked rule could never be removed by a local override.
 
-A `.githooks/pre-commit` leak gate blocks commits whose staged files contain secrets, tokens, or hardcoded home paths, as a backstop. Enable it per machine with `git config core.hooksPath .githooks` (the planned install script does this, and copies `settings.json` into place).
+The same posture applies to `permissions.defaultMode`: the tracked baseline ships the conservative `"default"` (prompt for approval), so a freshly bootstrapped machine never starts in auto-approve before its local allow-list exists. Opting a machine into `"auto"` is a per-machine decision — set it in `settings.local.json`.
+
+A `.githooks/pre-commit` leak gate blocks commits whose staged files contain secrets, tokens, or hardcoded home paths, as a backstop. Enable it per machine with `git config core.hooksPath .githooks` (`install.sh` does this, and copies `settings.json` into place if it is not already present).
 
 ## Plugins
 
