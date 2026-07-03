@@ -25,8 +25,9 @@ Act as a thinking partner, not just an executor. Prioritise accuracy over agreem
 ## Writing & reviewing code
 - Follow the andrej-karpathy-skills:karpathy-guidelines skill: think before coding, simplest thing that works, surgical changes, verifiable success criteria.
 
-## Visual outputs
-- For plans, explanations, mockups, or slide decks, default to a self-contained HTML artifact when the Artifact tool is available (load the artifact-design skill first). Fall back to markdown when it isn't. Never put secrets, credentials, or confidential/customer data in an artifact.
+## Visual outputs (artifacts)
+- IMPORTANT: deliver plans, investigation reports, and option comparisons as a self-contained HTML artifact without being asked (load the artifact-design skill first). Quick answers and interactive back-and-forth stay in chat. Fall back to markdown when the Artifact tool is unavailable.
+- A published artifact must track reality: republish it (same URL) before every plan approval and after every milestone — never leave it describing a superseded state. Never put secrets, credentials, or confidential/customer data in an artifact.
 
 <!-- Per-machine tool refs (installed CLIs, local paths) — kept in ~/.claude/local.md, never tracked here. Optional; fine if absent. -->
 @~/.claude/local.md
