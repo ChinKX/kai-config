@@ -64,6 +64,18 @@ copy_baseline claude/settings.json "$HOME/.claude/settings.json"
 # 4) Enable the pre-commit leak gate for this clone.
 git -C "$REPO" config core.hooksPath .githooks && echo "config   core.hooksPath=.githooks"
 
+# 5) Warn about optional tools zshrc guards for, so shells stay clean but you know what's missing.
+missing=()
+command -v cargo  >/dev/null 2>&1 || missing+=("cargo (rustup):  https://rustup.rs")
+command -v fzf    >/dev/null 2>&1 || missing+=("fzf:              brew install fzf")
+command -v zoxide >/dev/null 2>&1 || missing+=("zoxide:           brew install zoxide")
+command -v nvim   >/dev/null 2>&1 || missing+=("nvim:             brew install neovim")
+if [ "${#missing[@]}" -gt 0 ]; then
+  echo ""
+  echo "warn     zshrc guards these but they're not installed yet:"
+  for m in "${missing[@]}"; do echo "           $m"; done
+fi
+
 echo ""
 echo "Done. Restart Claude Code to load CLAUDE.md, then run: source ~/.zshrc"
 echo "Per-machine / internal settings go in ~/.claude/settings.local.json (untracked)."
