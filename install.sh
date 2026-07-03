@@ -21,6 +21,7 @@ symlink() {  # $1 = repo-relative source, $2 = destination
   mkdir -p "$(dirname "$dest")"
   rel="$(relpath "$src" "$(dirname "$dest")")"
   if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$rel" ]; then echo "ok       $dest"; return; fi
+  if [ -L "$dest" ]; then echo "replace  $dest (was -> $(readlink "$dest"))"; fi
   if [ -e "$dest" ] && [ ! -L "$dest" ]; then mv "$dest" "$dest.bak.$(date +%s)"; echo "backup   $dest -> .bak"; fi
   ln -sfn "$rel" "$dest"; echo "symlink  $dest -> $rel"
 }
@@ -56,8 +57,9 @@ cp "$REPO/zshrc" "$HOME/.zshrc"; echo "copy     ~/.zshrc"
 #    settings.json: bootstrap only if absent (never clobber accumulated Claude state).
 copy_baseline claude/settings.json "$HOME/.claude/settings.json"
 
-# 3) Machine-local stub so the CLAUDE.md @import resolves (kept untracked).
-[ -e "$HOME/.claude/local.md" ] || { printf '# Machine-local config\n' > "$HOME/.claude/local.md"; echo "stub     ~/.claude/local.md"; }
+# 3) Machine-local file so the CLAUDE.md @import resolves (kept untracked).
+#    Seeded from the tracked template — then adjust per machine.
+[ -e "$HOME/.claude/local.md" ] || { cp "$REPO/claude/local.md.example" "$HOME/.claude/local.md"; echo "seed     ~/.claude/local.md (from claude/local.md.example)"; }
 
 # 4) Enable the pre-commit leak gate for this clone.
 git -C "$REPO" config core.hooksPath .githooks && echo "config   core.hooksPath=.githooks"

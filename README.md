@@ -1,6 +1,6 @@
 # kai-config
 
-Personal config snapshot for my macOS dev setup. Tracks `~/.zshrc` and my Claude Code global instructions (`~/.claude/CLAUDE.md`) for backup and cross-machine sync.
+Personal config snapshot for my macOS dev setup. Tracks `~/.zshrc`, my Claude Code global instructions (`~/.claude/CLAUDE.md`), a public-safe `settings.json` baseline, and a machine-local config template — for backup and cross-machine sync.
 
 ## Setup
 
@@ -11,17 +11,13 @@ cd ~/Desktop/dev/kai-config
 source ~/.zshrc
 ```
 
-`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds the `~/.claude/local.md` stub and enables the pre-commit leak gate. Re-run it any time: lines that tool installers appended to `~/.zshrc` are migrated to the untracked `~/.zshrc.local` (which the managed `zshrc` sources), an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
+`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds `~/.claude/local.md` from `claude/local.md.example` and enables the pre-commit leak gate. Re-run it any time: lines that tool installers appended to `~/.zshrc` are migrated to the untracked `~/.zshrc.local` (which the managed `zshrc` sources), an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
 
 Restart Claude Code to load the new `CLAUDE.md`.
 
 ## Machine-local config
 
-`claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. Seed it on each machine from the tracked template:
-
-```bash
-cp ~/Desktop/dev/kai-config/claude/local.md.example ~/.claude/local.md   # then adjust
-```
+`claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. `install.sh` seeds it from the tracked template (`claude/local.md.example`) when absent; adjust it per machine afterwards.
 
 RTK (Rust Token Killer) and its `PreToolUse` hook (`~/.claude/hooks/rtk-rewrite.sh`) are installed per-machine by the RTK tool — not tracked here — and the command auto-rewrite (`git status` → `rtk git status`) only works after RTK is set up.
 
@@ -35,14 +31,16 @@ Those excluded bits live in `~/.claude/settings.local.json` — an untracked (gi
 
 The allow-list is kept local on purpose: it's working-state that accretes as you approve commands, and `permissions.allow` rules *union* across files — so a tracked rule could never be removed by a local override.
 
-A `.githooks/pre-commit` leak gate blocks commits whose staged files contain secrets, tokens, or hardcoded home paths, as a backstop. Enable it per machine with `git config core.hooksPath .githooks` (the planned install script does this, and copies `settings.json` into place).
+The same posture applies to `permissions.defaultMode`: the tracked baseline ships the conservative `"default"` (prompt for approval), so a freshly bootstrapped machine never starts in auto-approve before its local allow-list exists. Opting a machine into `"auto"` is a per-machine decision — set it in `settings.local.json`.
+
+A `.githooks/pre-commit` leak gate blocks commits whose staged files contain secrets, tokens, or hardcoded home paths, as a backstop. Enable it per machine with `git config core.hooksPath .githooks` (`install.sh` does this, and copies `settings.json` into place if it is not already present).
 
 ## Plugins
 
 `claude/CLAUDE.md` defers code-style guidance to the `karpathy-guidelines` skill. Install it once per machine, from inside Claude Code:
 
 ```
-/plugin marketplace add forrestchang/andrej-karpathy-skills
+/plugin marketplace add multica-ai/andrej-karpathy-skills
 /plugin install andrej-karpathy-skills@karpathy-skills
 ```
 
