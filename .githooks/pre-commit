@@ -11,8 +11,9 @@ hits=0
 while IFS= read -r f; do
   [ -z "$f" ] && continue
   case "$f" in .githooks/*) continue ;; esac   # never scan the gate itself
-  [ -f "$f" ] || continue
-  if matches=$(grep -nIEi "$pattern" "$f"); then
+  # Scan the staged blob, not the working-tree file: the commit is built from the
+  # index, and the two can diverge (git add -p, edit-after-stage, rm-after-stage).
+  if matches=$(git show ":$f" | grep -nIEi "$pattern"); then
     echo "🚫 leak-gate: internal/confidential marker in staged file: $f"
     printf '%s\n' "$matches" | sed 's/^/     /'
     hits=1
