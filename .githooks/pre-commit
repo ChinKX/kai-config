@@ -5,7 +5,7 @@
 # Override a false positive with:  git commit --no-verify
 set -euo pipefail
 
-pattern='BEGIN [A-Z ]*PRIVATE KEY|xox[baprs]-|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/'
+pattern='BEGIN [A-Z ]*PRIVATE KEY|xox[baprs]-|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|sk-ant-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{35}|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}|npm_[A-Za-z0-9]{36}|/Users/[A-Za-z0-9._-]+/|/home/[A-Za-z0-9._-]+/'
 hits=0
 
 while IFS= read -r f; do
