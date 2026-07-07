@@ -54,4 +54,4 @@ git -C "$REPO" config core.hooksPath .githooks && echo "config   core.hooksPath=
 
 echo ""
 echo "Done. Restart Claude Code to load CLAUDE.md, then run: source ~/.zshrc"
-echo "Per-machine / internal settings go in ~/.claude/settings.local.json (untracked)."
+echo "Per-machine / internal settings go directly in ~/.claude/settings.json (a local copy, never tracked)."

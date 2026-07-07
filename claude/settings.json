@@ -39,6 +39,8 @@
       }
     }
   },
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
   "skipWebFetchPreflight": true,
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",

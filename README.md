@@ -27,11 +27,13 @@ RTK (Rust Token Killer) and its `PreToolUse` hook (`~/.claude/hooks/rtk-rewrite.
 
 Unlike `CLAUDE.md`, this file is **copied onto a machine, not symlinked.** Claude Code treats `~/.claude/settings.json` as a live, app-managed file — it writes runtime state there (notification toggles, `tui`, approved permissions). Symlinking it into the repo would let those writes dirty, and potentially leak into, this public repo. So the live file is a plain local copy; the tracked file is only the starting baseline.
 
-Those excluded bits live in `~/.claude/settings.local.json` — an untracked (gitignored) override that Claude Code merges *over* `settings.json`. It holds the RTK hook, the status-line command, private plugin marketplaces, the permission-skip flags, and the whole `permissions.allow` list.
+Those excluded bits go **directly into the live `~/.claude/settings.json`** on each machine. That's safe precisely because the live file is a local copy, never tracked — machine-specific and internal config (the RTK hook, the status-line command, private plugin marketplaces, the whole `permissions.allow` list) can sit next to the baseline keys without ever reaching this repo.
 
-The allow-list is kept local on purpose: it's working-state that accretes as you approve commands, and `permissions.allow` rules *union* across files — so a tracked rule could never be removed by a local override.
+> **Warning:** do NOT put user-level overrides in `~/.claude/settings.local.json`. Claude Code never loads that file — `settings.local.json` exists only at the *project* level (`./.claude/settings.local.json`). Anything placed in a user-level one is silently dead. (An earlier revision of this README recommended exactly that; everything in it — status line, RTK hook, allow-list — was inactive until merged back into `~/.claude/settings.json`.)
 
-The same posture applies to `permissions.defaultMode`: the tracked baseline ships the conservative `"default"` (prompt for approval), so a freshly bootstrapped machine never starts in auto-approve before its local allow-list exists. Opting a machine into `"auto"` is a per-machine decision — set it in `settings.local.json`.
+The allow-list is kept out of the baseline on purpose: it's working-state that accretes as you approve commands, and `permissions.allow` rules *union* across files — so a tracked rule could never be removed locally.
+
+The same posture applies to `permissions.defaultMode`: the tracked baseline ships the conservative `"default"` (prompt for approval), so a freshly bootstrapped machine never starts in auto-approve before its local allow-list exists. Opting a machine into `"auto"` is a per-machine decision — set it in the live `~/.claude/settings.json`.
 
 A `.githooks/pre-commit` leak gate blocks commits whose staged files contain secrets, tokens, or hardcoded home paths, as a backstop. Enable it per machine with `git config core.hooksPath .githooks` (`install.sh` does this, and copies `settings.json` into place if it is not already present).
 
