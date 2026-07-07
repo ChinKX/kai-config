@@ -17,7 +17,9 @@ while IFS= read -r f; do
     printf '%s\n' "$matches" | sed 's/^/     /'
     hits=1
   fi
-done < <(git diff --cached --name-only --diff-filter=ACM)
+# ACMR: include rename destinations — a git mv plus an edit stages as status R,
+# which plain ACM would silently skip.
+done < <(git diff --cached --name-only --diff-filter=ACMR)
 
 if [ "$hits" -ne 0 ]; then
   echo ""
