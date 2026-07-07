@@ -33,7 +33,7 @@ Those excluded bits go **directly into the live `~/.claude/settings.json`** on e
 
 The allow-list is kept out of the baseline on purpose: it's working-state that accretes as you approve commands, and `permissions.allow` rules *union* across files — so a tracked rule could never be removed locally.
 
-The same posture applies to `permissions.defaultMode`: the tracked baseline ships the conservative `"default"` (prompt for approval), so a freshly bootstrapped machine never starts in auto-approve before its local allow-list exists. Opting a machine into `"auto"` is a per-machine decision — set it in the live `~/.claude/settings.json`.
+`permissions.defaultMode` ships as `"auto"` in the baseline: a freshly bootstrapped machine starts in auto mode (and, with the acceptance flags above, without the opt-in dialog). Auto mode is classifier-gated rather than blanket auto-approve, but if a machine should prompt for everything, flip it to `"default"` in the live `~/.claude/settings.json`.
 
 A `.githooks/pre-commit` leak gate blocks commits whose staged files contain secrets, tokens, or hardcoded home paths, as a backstop. Enable it per machine with `git config core.hooksPath .githooks` (`install.sh` does this, and copies `settings.json` into place if it is not already present).
 

@@ -4,7 +4,7 @@
     "SHELL": "/bin/zsh"
   },
   "permissions": {
-    "defaultMode": "default"
+    "defaultMode": "auto"
   },
   "enabledPlugins": {
     "andrej-karpathy-skills@karpathy-skills": true,
