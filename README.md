@@ -11,7 +11,7 @@ cd ~/Desktop/dev/kai-config
 source ~/.zshrc
 ```
 
-`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds `~/.claude/local.md` from `claude/local.md.example` and enables the pre-commit leak gate. Re-run it any time; an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
+`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds `~/.claude/local.md` from `claude/local.md.example` and enables the pre-commit leak gate. Re-run it any time: lines that tool installers appended to `~/.zshrc` are migrated to the untracked `~/.zshrc.local` (which the managed `zshrc` sources), an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
 
 Restart Claude Code to load the new `CLAUDE.md`.
 
@@ -54,4 +54,4 @@ Some of my `~/.claude/` and shell setup is installed by separate tools and is **
 
 - **[Argent](https://github.com/software-mansion/argent)** — `npx @swmansion/argent init` installs the `argent-*` skills, the `~/.claude/rules/argent.md` always-on rule, and the `argent-environment-inspector` agent (iOS/Android agent tooling). Deliberately not tracked here — re-run `init` per machine, and to update the rule.
 - **RTK (Rust Token Killer)** — installed per-machine; provides `~/.claude/hooks/rtk-rewrite.sh` and its `PreToolUse` hook (see [Machine-local config](#machine-local-config)).
-- **bun / opencode** — their installers re-add their own `~/.zshrc` lines.
+- **bun / opencode** — their installers re-add their own `~/.zshrc` lines; the next `install.sh` run migrates those into `~/.zshrc.local`, where they persist across re-installs.

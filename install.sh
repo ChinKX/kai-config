@@ -37,8 +37,20 @@ copy_baseline() {  # $1 = repo-relative source, $2 = destination; copy only if m
 symlink claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
 
 # 2) Copied — app/installer write-targets, kept out of the repo.
-#    zshrc: install your config, backing up any existing one first.
+#    zshrc: install your config, backing up any existing one first. Lines that
+#    tool installers appended (bun, opencode, ...) are migrated to the untracked
+#    ~/.zshrc.local, which the managed zshrc sources — so re-installs never
+#    deactivate them.
 if [ -e "$HOME/.zshrc" ] && ! cmp -s "$REPO/zshrc" "$HOME/.zshrc"; then
+  extra="$(grep -Fxvf "$REPO/zshrc" "$HOME/.zshrc" || true)"
+  if [ -n "$extra" ]; then
+    if [ -e "$HOME/.zshrc.local" ] && grep -Fxq "$(printf '%s' "$extra" | head -n1)" "$HOME/.zshrc.local"; then
+      echo "skip     ~/.zshrc.local already has the extra lines"
+    else
+      { echo ""; echo "# migrated from ~/.zshrc by install.sh on $(date +%F)"; printf '%s\n' "$extra"; } >> "$HOME/.zshrc.local"
+      echo "migrate  ~/.zshrc extra lines -> ~/.zshrc.local"
+    fi
+  fi
   mv "$HOME/.zshrc" "$HOME/.zshrc.bak.$(date +%s)"; echo "backup   ~/.zshrc -> .bak"
 fi
 cp "$REPO/zshrc" "$HOME/.zshrc"; echo "copy     ~/.zshrc"
@@ -51,6 +63,18 @@ copy_baseline claude/settings.json "$HOME/.claude/settings.json"
 
 # 4) Enable the pre-commit leak gate for this clone.
 git -C "$REPO" config core.hooksPath .githooks && echo "config   core.hooksPath=.githooks"
+
+# 5) Warn about optional tools zshrc guards for, so shells stay clean but you know what's missing.
+missing=()
+command -v cargo  >/dev/null 2>&1 || missing+=("cargo (rustup):  https://rustup.rs")
+command -v fzf    >/dev/null 2>&1 || missing+=("fzf:              brew install fzf")
+command -v zoxide >/dev/null 2>&1 || missing+=("zoxide:           brew install zoxide")
+command -v nvim   >/dev/null 2>&1 || missing+=("nvim:             brew install neovim")
+if [ "${#missing[@]}" -gt 0 ]; then
+  echo ""
+  echo "warn     zshrc guards these but they're not installed yet:"
+  for m in "${missing[@]}"; do echo "           $m"; done
+fi
 
 echo ""
 echo "Done. Restart Claude Code to load CLAUDE.md, then run: source ~/.zshrc"
