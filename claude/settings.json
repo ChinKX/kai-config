@@ -4,7 +4,7 @@
     "SHELL": "/bin/zsh"
   },
   "permissions": {
-    "defaultMode": "default"
+    "defaultMode": "auto"
   },
   "enabledPlugins": {
     "andrej-karpathy-skills@karpathy-skills": true,
@@ -39,6 +39,8 @@
       }
     }
   },
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
   "skipWebFetchPreflight": true,
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
