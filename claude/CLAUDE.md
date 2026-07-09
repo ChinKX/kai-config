@@ -24,6 +24,12 @@ Act as a thinking partner, not just an executor. Prioritise accuracy over agreem
 
 ## Writing & reviewing code
 - Follow the andrej-karpathy-skills:karpathy-guidelines skill: think before coding, simplest thing that works, surgical changes, verifiable success criteria.
+- When planning an implementation or reviewing code, show concrete code snippets (current vs proposed, or the specific change) rather than describing the change in prose alone.
+
+## Explaining & presenting
+- Lead with the answer or recommendation, then the detail — don't make the reader dig for the conclusion.
+- Structure for a single-pass read: headings, short paragraphs, and lists over dense blocks; keep a logical flow (context → reasoning → conclusion).
+- Prefer a visual when it makes something clearer than prose: a table for a few values or options, an ASCII diagram for a flow or state, a code snippet for examples. (Plans, investigations, and comparisons go to an artifact per "Visual outputs".)
 
 ## Visual outputs (artifacts)
 - IMPORTANT: deliver plans, investigation reports, and option comparisons as a self-contained HTML artifact without being asked (load the artifact-design skill first). Quick answers and interactive back-and-forth stay in chat. Fall back to markdown when the Artifact tool is unavailable.
