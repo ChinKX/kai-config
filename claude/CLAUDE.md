@@ -33,7 +33,12 @@ Act as a thinking partner, not just an executor. Prioritise accuracy over agreem
 
 ## Visual outputs (artifacts)
 - IMPORTANT: deliver plans, investigation reports, and option comparisons as a self-contained HTML artifact without being asked (load the artifact-design skill first). Quick answers and interactive back-and-forth stay in chat. Fall back to markdown when the Artifact tool is unavailable.
-- A published artifact must track reality: republish it (same URL) before every plan approval and after every milestone — never leave it describing a superseded state. Never put secrets, credentials, or confidential/customer data in an artifact.
+- A published artifact must track reality: republish it (same URL) before every plan approval and after every milestone, revising per *Revising docs*. Never put secrets, credentials, or confidential/customer data in an artifact.
+
+## Revising docs (revise, don't append)
+- IMPORTANT: before you re-edit, rewrite, or redeploy any doc you've already produced — plan, report, artifact, README, spec, memory — revise it to current state; don't append. The trained default is to add beside the stale text; actively resist it.
+- Each time: (1) re-read the whole doc and name what changed; (2) patch the affected section in place for localised changes, or re-outline and rewrite when the change is structural; (3) cut or rewrite what's superseded or duplicated, hold a length ceiling (justify growth or cut it), commit to one statement over stacked caveats; (4) keep it single-purpose — route genuine history to an archival note, not inline; (5) read once as a first-time reader before saving; for a much-edited doc, do a full-doc pass. For an artifact, also keep the existing design system and both themes intact — revise the content, not the look.
+- Exception — archival docs: don't rewrite; stamp `SUPERSEDED`, keep, and link the current source.
 
 <!-- Per-machine tool refs (installed CLIs, local paths) — kept in ~/.claude/local.md, never tracked here. Optional; fine if absent. -->
 @~/.claude/local.md
