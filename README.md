@@ -1,6 +1,6 @@
 # kai-config
 
-Personal config snapshot for my macOS dev setup. Tracks `~/.zshrc`, my Claude Code global instructions (`~/.claude/CLAUDE.md`), a public-safe `settings.json` baseline, and a machine-local config template — for backup and cross-machine sync.
+Personal config snapshot for my macOS dev setup. Tracks `~/.zshrc`, my Claude Code global instructions (`~/.claude/CLAUDE.md`), custom output styles, a public-safe `settings.json` baseline, and a machine-local config template — for backup and cross-machine sync.
 
 ## Setup
 
@@ -11,7 +11,7 @@ cd ~/Desktop/dev/kai-config
 source ~/.zshrc
 ```
 
-`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md`, via a relative link with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds `~/.claude/local.md` from `claude/local.md.example` and enables the pre-commit leak gate. Re-run it any time; an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
+`install.sh` is idempotent. It **symlinks** the files you hand-edit (`CLAUDE.md` and each `output-styles/*.md`, via relative links with no hardcoded home path) and **copies** the files apps write to (`zshrc`, `settings.json` — see [Claude settings](#claude-settings) for why). It also seeds `~/.claude/local.md` from `claude/local.md.example` and enables the pre-commit leak gate. Re-run it any time; an existing real file is backed up to `*.bak.<timestamp>` before being replaced, and an existing `settings.json` is left untouched.
 
 Restart Claude Code to load the new `CLAUDE.md`.
 
@@ -20,6 +20,13 @@ Restart Claude Code to load the new `CLAUDE.md`.
 `claude/CLAUDE.md` ends with `@~/.claude/local.md`, an import for machine-specific bits (tool paths, per-machine CLIs). That file is **deliberately not tracked here** — keep it out of this repo so the shared core stays portable and safe to publish. `install.sh` seeds it from the tracked template (`claude/local.md.example`) when absent; adjust it per machine afterwards.
 
 RTK (Rust Token Killer) and its `PreToolUse` hook (`~/.claude/hooks/rtk-rewrite.sh`) are installed per-machine by the RTK tool — not tracked here — and the command auto-rewrite (`git status` → `rtk git status`) only works after RTK is set up.
+
+## Output styles
+
+`claude/output-styles/*.md` are custom Claude Code [output styles](https://code.claude.com/docs/en/output-styles) — switchable modes that reshape *how* Claude responds (tone, format), layered on top of `CLAUDE.md`. Only one is active at a time; activate one with `/config` → Output style (it takes effect after `/clear` or the next session). `install.sh` symlinks each into `~/.claude/output-styles/`, so they stay in lockstep like `CLAUDE.md`, and machine-local styles you don't track can sit alongside them.
+
+- **Visualisation-first** — lead with the clearest visual (diagram, table) and ship plans, investigations, and comparisons as artifacts.
+- **ELI5** — short, plain-language answers for low-energy sessions.
 
 ## Claude settings
 
