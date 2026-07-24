@@ -35,6 +35,11 @@ copy_baseline() {  # $1 = repo-relative source, $2 = destination; copy only if m
 
 # 1) Symlinked — hand-edited, kept in lockstep with the repo.
 symlink claude/CLAUDE.md "$HOME/.claude/CLAUDE.md"
+#    Custom output styles, each symlinked like CLAUDE.md. Machine-local styles you
+#    don't track can live alongside these in ~/.claude/output-styles/.
+for style in "$REPO"/claude/output-styles/*.md; do
+  symlink "claude/output-styles/$(basename "$style")" "$HOME/.claude/output-styles/$(basename "$style")"
+done
 
 # 2) Copied — app/installer write-targets, kept out of the repo.
 #    zshrc: install your config, backing up any existing one first.
